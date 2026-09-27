@@ -1,0 +1,30 @@
+[project]
+name = "cypher-agent"
+version = "0.1.0"
+description = "Plan-and-execute agent over a Neo4j knowledge graph (LangGraph + Azure OpenAI)"
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph>=0.2",
+    "langchain-core>=0.3",
+    "langchain-openai>=0.2",
+    "neo4j>=5.0",
+    "pydantic>=2.0",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+notebook = ["ipython", "pygraphviz"]
+dev = ["ruff", "pyright"]
+
+[project.scripts]
+cypher-agent = "cypher_agent.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cypher_agent"]
+
+[tool.ruff]
+line-length = 120
