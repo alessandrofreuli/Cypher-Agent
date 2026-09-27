@@ -1,4 +1,4 @@
-# cypher-agent
+# Cypher Agent
 
 Plan-and-execute agent over a Neo4j knowledge graph, built with LangGraph + Azure OpenAI.
 
@@ -13,7 +13,7 @@ Tools are generated at runtime from `data/tool_definitions.json` (each entry = n
 description, Cypher query, parameters) and executed against Neo4j; `data/schema.md` is
 injected into the planner prompt.
 
-## Layout
+## Project structure
 
 ```
 src/cypher_agent/
@@ -36,9 +36,9 @@ notebooks/       interactive exploration + graph rendering
 ## Setup
 
 ```bash
-cp .env.example .env    # fill in Neo4j + Azure credentials
+cp .env.example .env         # fill in Neo4j + Azure credentials
 python -m venv .venv
-source .venv/bin/activate        # on Windows: .venv\Scripts\activate
+source .venv/bin/activate    # on Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 ```
 
