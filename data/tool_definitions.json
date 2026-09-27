@@ -1,0 +1,206 @@
+[
+   {
+      "name": "get_person_details_by_exact_name",
+      "description": "Use this tool only when the full, exact name of the person is known with certainty. Returns all available details for the person with the specified name. If the name might be partial or approximate, use get_person_details_by_unsure_name instead. Returns an empty result if no person matches exactly. Examples: 'Get details for John Doe', 'Show me all information about Jane Smith'.",
+      "query": "MATCH (p:Person) WHERE p.fullName = $name RETURN DISTINCT p{.*}",
+      "parameters": {
+         "name": {
+            "type": "string",
+            "description": "The exact full name of the person (e.g. 'John Doe')."
+         }
+      }
+   },
+   {
+      "name": "get_person_details_by_unsure_name",
+      "description": "Use this tool when only a partial name, first name, or approximate spelling is available. If no results are returned, broaden the query using a wildcard suffix (e.g. '+john +sm*'). Examples: 'Get details for John', 'Show me all information about Jane S.'.",
+      "query": "CALL db.index.fulltext.queryNodes('Person', $query) YIELD node, score RETURN node{.*}, score ORDER BY score DESC",
+      "parameters": {
+         "query": {
+            "type": "string",
+            "description": "Lucene query string using AND logic between name tokens: prefix EVERY term with '+' so that all terms must match (e.g. 'William Brooks' → '+william +brooks'). Use '*' as a wildcard suffix on the last term for prefix matching (e.g. '+john +sm*')."
+         }
+      }
+   },
+   {
+      "name": "get_person_details_by_id",
+      "description": "Use this tool when the unique identifier of the person is known. Returns a single result since the id is unique. Returns an empty result if the id does not exist in the graph. Examples: 'Get person with id 12345'.",
+      "query": "MATCH (p:Person) WHERE p.id = $id RETURN DISTINCT p{.*}",
+      "parameters": {
+         "id": {
+            "type": "string",
+            "description": "The unique identifier of the person as stored in the graph (e.g. 'POL_12345')."
+         }
+      }
+   },
+   {
+      "name": "get_person_addresses_by_id",
+      "description": "Use this tool when the unique identifier of the person is known and you need to retrieve all addresses associated with that person.",
+      "query": "MATCH (p:Person)-[:HAS_ADDRESS]->(a) WHERE p.id = $id RETURN DISTINCT a{.*}",
+      "parameters": {
+         "id": {
+            "type": "string",
+            "description": "The unique identifier of the person as stored in the graph (e.g. 'POL_12345')."
+         }
+      }
+   },
+   {
+      "name": "get_person_by_location_components",
+      "description": "Use this tool when the location is only partially known via specific fields (e.g. street name, street number, city, state, or zip), rather than a single free-text query. Any combination of fields can be provided; only the provided (non-null) fields are matched, others are ignored. Match is case-sensitive and partial (CONTAINS) for streetName and city; exact for streetNumber, state, and zip. Returns all persons linked to matching locations. Examples: 'Who lives at street number 22 on Kingly St?', 'Who lives in London at zip W1B 5QP?'.",
+      "query": "MATCH (p:Person)-[:HAS_ADDRESS]->(l:Location) WHERE ($streetName IS NULL OR l.streetName CONTAINS $streetName) AND ($streetNumber IS NULL OR l.streetNumber = $streetNumber) AND ($city IS NULL OR l.city CONTAINS $city) AND ($state IS NULL OR l.state = $state) AND ($zip IS NULL OR replace(l.zip, ' ', '') = replace($zip, ' ', '')) RETURN DISTINCT p{.*}, l{.*} AS location",
+      "parameters": {
+         "streetName": {
+            "type": "string",
+            "description": "The street name, partial match allowed (e.g. 'KINGLY ST')."
+         },
+         "streetNumber": {
+            "type": "string",
+            "description": "The street/house number, exact match (e.g. '22')."
+         },
+         "city": {
+            "type": "string",
+            "description": "The city name, partial match allowed (e.g. 'LONDON')."
+         },
+         "state": {
+            "type": "string",
+            "description": "The state or country code, exact match (e.g. 'UK')."
+         },
+         "zip": {
+            "type": "string",
+            "description": "The postal/zip code, exact match, spaces are ignored (e.g. 'W1B 5QP' or 'W1B5QP')."
+         }
+      }
+   },
+   {
+      "name": "get_phone_number_by_person_id",
+      "description": "Use this tool when the unique identifier of the person is known and you need to retrieve all phone numbers associated with that person.",
+      "query": "MATCH (p:Person)-[:OWNS_PHONE_NUMBER]->(ph:PhoneNumber) WHERE p.id = $id RETURN DISTINCT ph{.*}",
+      "parameters": {
+         "id": {
+            "type": "string",
+            "description": "The unique identifier of the person as stored in the graph (e.g. 'POL_12345')."
+         }
+      }
+   },
+   {
+      "name": "get_person_id_by_phone_number",
+      "description": "Use this tool when the phone number is known and you need to find the persons id who own it.",
+      "query": "MATCH (p:Person)-[:OWNS_PHONE_NUMBER]->(ph:PhoneNumber) WHERE ph.phoneNumber = $phoneNumber RETURN DISTINCT p.id",
+      "parameters": {
+         "phoneNumber": {
+            "type": "string",
+            "description": "The exact phone number as stored in the graph."
+         }
+      }
+   },
+   {
+      "name": "get_offence_by_person_id",
+      "description": "Use this tool when the unique identifier of the person is known and you need the offences they were directly charged for. Preferred over get_arrests_by_person_id + get_offence_by_arrest_id unless arrest-level details are needed.",
+      "query": "MATCH (p:Person)-[:CHARGED_FOR]->(o:Offence) WHERE p.id = $id RETURN DISTINCT o{.*}",
+      "parameters": {
+         "id": {
+            "type": "string",
+            "description": "The unique identifier of the person as stored in the graph (e.g. 'POL_12345')."
+         }
+      }
+   },
+   {
+      "name": "get_arrests_by_person_id",
+      "description": "Use this tool when the unique identifier of the person is known and you need their arrest records (date, location, etc.), not just their offences. For offences alone, use get_offence_by_person_id instead.",
+      "query": "MATCH (p:Person)-[:PARTY_IN]-(a:Arrest) WHERE p.id = $id RETURN DISTINCT a{.*}",
+      "parameters": {
+         "id": {
+            "type": "string",
+            "description": "The unique identifier of the person as stored in the graph."
+         }
+      }
+   },
+   {
+      "name": "get_person_by_arrest_id",
+      "description": "Use this tool when the unique identifier of an arrest is known and you need to find the person who was party in.",
+      "query": "MATCH (p:Person)-[:PARTY_IN]-(a:Arrest) WHERE a.id = $id RETURN DISTINCT p{.*}",
+      "parameters": {
+         "id": {
+            "type": "string",
+            "description": "The unique identifier of the arrest as stored in the graph."
+         }
+      }
+   },
+   {
+      "name": "get_offence_by_arrest_id",
+      "description": "Use this tool when you have a specific arrest ID and need the offence(s) tied to it. For all offences of a person, use get_offence_by_person_id instead.",
+      "query": "MATCH (a:Arrest)-[:FOR_OFFENCE]-(o:Offence) WHERE a.id = $id RETURN DISTINCT o{.*}",
+      "parameters": {
+         "id": {
+            "type": "string",
+            "description": "The unique identifier of the arrest as stored in the graph."
+         }
+      }
+   },
+   {
+      "name": "get_arrests_by_offence_id",
+      "description": "Use this tool when the unique identifier of an offence is known and you need to retrieve all arrests made for that offence.",
+      "query": "MATCH (a:Arrest)-[:FOR_OFFENCE]-(o:Offence) WHERE o.id = $id RETURN DISTINCT a{.*}",
+      "parameters": {
+         "id": {
+            "type": "string",
+            "description": "The unique identifier of the offence as stored in the graph."
+         }
+      }
+   },
+   {
+      "name": "get_marks_scars_tattoos_by_person_id",
+      "description": "Use this tool when the unique identifier of the person is known and you need to retrieve all distinguishing marks, scars, or tattoos associated with that person.",
+      "query": "MATCH (p:Person)-[:HAS_MARK_SCAR_TATTOO]->(m:MarkScarTattoo) WHERE p.id = $id RETURN DISTINCT m{.*}",
+      "parameters": {
+         "id": {
+            "type": "string",
+            "description": "The unique identifier of the person as stored in the graph (e.g. 'POL_12345')."
+         }
+      }
+   },
+   {
+      "name": "get_persons_by_mark_scar_tattoo_filters",
+      "description": "Use this tool to search for persons with a distinguishing mark, scar, or tattoo matching any combination of description, body location, body position, and/or feature type. Any combination of fields can be provided; only the provided (non-null) fields are matched. Text fields use partial (CONTAINS) matching; featureType uses exact matching.",
+      "query": "MATCH (p:Person)-[:HAS_MARK_SCAR_TATTOO]->(m:MarkScarTattoo) WHERE ($description IS NULL OR m.description CONTAINS $description) AND ($bodyLocation IS NULL OR m.bodyLocation CONTAINS $bodyLocation) AND ($bodyPosition IS NULL OR m.bodyPosition CONTAINS $bodyPosition) AND ($featureType IS NULL OR m.featureType = $featureType) RETURN DISTINCT p{.*}, m{.*} AS markScarTattoo",
+      "parameters": {
+         "description": {
+            "type": "string",
+            "description": "Partial text to match against the description (e.g. 'skull')."
+         },
+         "bodyLocation": {
+            "type": "string",
+            "description": "Partial text to match against the body location (e.g. 'ARM', 'FACE')."
+         },
+         "bodyPosition": {
+            "type": "string",
+            "description": "Partial text to match against the body position (e.g. 'UPPER RIGHT')."
+         },
+         "featureType": {
+            "type": "string",
+            "description": "Exact feature type: 'TATTOO', 'SCAR', or 'MARK'."
+         }
+      }
+   },
+   {
+      "name": "get_person_id_by_custody_type",
+      "description": "Use this tool to retrieve the person IDs of all persons matching a specific custody type (e.g. 'PAROLE', 'IN_CUSTODY', 'PROBATION').",
+      "query": "MATCH (p:Person)-[:RESOLVED_TO]->(e:EntityGroup)<-[:RESOLVED_TO]-(:HMPS)-[:HAS_CUSTODY_STATUS]->(cs)-[r:RELATED_TO_FACILITY|CURRENT_FACILITY]->() WHERE r.offenderStatus = $offenderStatus RETURN DISTINCT p.id",
+      "parameters": {
+         "offenderStatus": {
+            "type": "string",
+            "description": "The exact offender status to match (e.g. 'PAROLE', 'IN_CUSTODY', 'PROBATION')."
+         }
+      }
+   },
+   {
+      "name": "get_custody_details_by_person_id",
+      "description": "Use this tool to retrieve the custody status details (offenderStatus, admissionDate, paroleDate, projectedParoleDate, projectedDischargeDate) for a specific person, identified by their person ID.",
+      "query": "MATCH (p:Person {id: $personId})-[:RESOLVED_TO]->(e:EntityGroup)<-[:RESOLVED_TO]-(:HMPS)-[:HAS_CUSTODY_STATUS]->(cs) RETURN DISTINCT cs{.*}",
+      "parameters": {
+         "personId": {
+            "type": "string",
+            "description": "The unique ID of the person whose custody details should be retrieved."
+         }
+      }
+   }
+]
