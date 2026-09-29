@@ -65,7 +65,7 @@ cypher-agent/
 │   └── cli.py            # `cypher-agent` command
 ├── data/
 │   ├── tool_definitions.json
-│   └── schema.md         # not in the repo, see below
+│   └── schema.md
 ├── notebooks/
 │   └── explore.ipynb
 ├── .env.example
