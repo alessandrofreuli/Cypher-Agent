@@ -97,13 +97,10 @@ Command line:
 cypher-agent "Find the person with the phone number '43832726839', then find where they live"
 ```
 
-Python (in a notebook, just `await question("...")`):
+Python:
 
 ```python
-import asyncio
-from cypher_agent.runner import question
-
-asyncio.run(question("Find the person with the phone number '43832726839', then find where they live"))
+question("Find the person with the phone number '43832726839', then find where they live")
 ```
 
 ## Adapting to your graph
