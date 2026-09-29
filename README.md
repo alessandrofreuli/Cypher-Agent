@@ -20,12 +20,6 @@ Instead of letting the LLM write free-form Cypher, the agent uses a curated **to
 
 ### Plan level (`plan_graph.py`)
 
-```
-START → plan_node → agent_node → replan_node ─┬─→ agent_node  (steps remain)
-                                              ├─→ plan_node   (plan was wrong)
-                                              └─→ END         (final response)
-```
-
 | Node | Responsibility |
 | --- | --- |
 | `plan_node` | Builds an ordered list of steps after a feasibility check. On replanning, also uses accumulated knowledge and feedback. |
@@ -33,11 +27,6 @@ START → plan_node → agent_node → replan_node ─┬─→ agent_node  (ste
 | `replan_node` | Picks exactly one outcome: final `response`, remaining `steps`, or `replan_feedback`. Maintains the `knowledge` summary. |
 
 ### Step level (`step_graph.py`)
-
-```
-START → strategy_node ─┬─→ tool_execution_node → critic_node ─┬─→ END            (accepted)
-                       └─→ critic_node                        └─→ strategy_node  (retry)
-```
 
 | Node | Responsibility |
 | --- | --- |
