@@ -6,14 +6,14 @@ Instead of letting the LLM write free-form Cypher, the agent uses a curated **to
 
 ## Features
 
-- **Two nested LangGraph loops** – a plan level (`plan → agent → replan`) and a step level (`strategy → tools → critic`).
-- **Critic-supervised steps** – each step is checked against the raw data and retried up to `CYPHER_AGENT_MAX_STEP_ATTEMPTS` times.
-- **Declarative tools** – add a capability by adding a JSON entry, not code.
-- **Schema-aware planning** – graph schema and tool summary are injected into the planner prompt.
-- **Feasibility gate** – unanswerable questions end with an explicit "I cannot answer this question."
-- **Anti-hallucination guardrails** – id-level matching of records, no back-filling from unrelated nodes, answers must contain the actual retrieved data.
-- **Dual memory** – a prose `knowledge` summary for planning, plus raw `artifacts` per step.
-- **Fully autonomous** – never asks the user for clarification.
+- **Two nested LangGraph loops**: a plan level (`plan → agent → replan`) and a step level (`strategy → tools → critic`).
+- **Critic-supervised steps**: each step is checked against the raw data and retried up to `CYPHER_AGENT_MAX_STEP_ATTEMPTS` times.
+- **Declarative tools**: add a capability by adding a JSON entry, not code.
+- **Schema-aware planning**: graph schema and tool summary are injected into the planner prompt.
+- **Feasibility gate**: unanswerable questions end with an explicit "I cannot answer this question."
+- **Anti-hallucination guardrails**: id-level matching of records, no back-filling from unrelated nodes, answers must contain the actual retrieved data.
+- **Dual memory**: a prose `knowledge` summary for planning, plus raw `artifacts` per step.
+- **Fully autonomous**: never asks the user for clarification.
 - **CLI or async Python library**, with readable console tracing.
 
 ## How it works
@@ -121,7 +121,7 @@ asyncio.run(question("Find the person with the phone number '43832726839', then 
 
 No Python changes are needed: replace `data/tool_definitions.json` and `data/schema.md`.
 
-**Tools** – each entry has a name, a description the LLM uses to choose it, a parameterised Cypher query and its parameters:
+**Tools**: each entry has a name, a description the LLM uses to choose it, a parameterised Cypher query and its parameters:
 
 ```json
 {
@@ -136,6 +136,6 @@ No Python changes are needed: replace `data/tool_definitions.json` and `data/sch
 
 Good descriptions say *when* to use the tool, which identifier it expects, and which sibling tool to prefer in adjacent cases.
 
-**Schema** – `schema.md` lists node labels (properties, types, required/optional) and relationship types, and is injected verbatim into the planner prompt.
+**Schema**: `schema.md` lists node labels (properties, types, required/optional) and relationship types, and is injected verbatim into the planner prompt.
 
 > ⚠️ `data/schema.md` is in `.gitignore`, so a fresh clone does not include it. Generate your own, for example by exporting the schema with `apoc.meta.schema()` or `db.schema.visualization()` and formatting it as Markdown.
