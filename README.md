@@ -124,4 +124,4 @@ Good descriptions say *when* to use the tool, which identifier it expects, and w
 
 **Schema**: `schema.md` lists node labels (properties, types, required/optional) and relationship types, and is injected verbatim into the planner prompt.
 
-> ⚠️ `data/schema.md` is in `.gitignore`, so a fresh clone does not include it. Generate your own, for example by exporting the schema with `apoc.meta.schema()` or `db.schema.visualization()` and formatting it as Markdown.
+> `data/schema.md` is in `.gitignore`, so a fresh clone does not include it. Generate your own, for example by exporting the schema with `apoc.meta.schema()` or `db.schema.visualization()` and formatting it as Markdown.
