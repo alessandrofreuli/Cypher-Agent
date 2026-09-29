@@ -95,7 +95,7 @@ cd Cypher-Agent
 python -m venv .venv
 source .venv/bin/activate        # on Windows: .venv\Scripts\activate
 
-pip install -e ".[dev]"          # core + ruff and pyright
+pip install -e ".[dev]"
 
 cp .env.example .env             # then fill in your credentials
 ```
