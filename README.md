@@ -18,6 +18,12 @@ Instead of letting the LLM write free-form Cypher, the agent uses a curated **to
 
 ## How it works
 
+The agent is made of two nested LangGraph graphs. The outer **plan graph** (`plan_node → agent_node → replan_node`) decides what to do; each `agent_node` is itself a **step graph** (`strategy_node → tool_execution_node → critic_node`) that executes a single step with critic supervision. Dotted edges are conditional.
+
+<p align="center">
+  <img src="docs/agent_graph.png" alt="Cypher Agent graph: plan_node, agent_node (strategy, tool execution, critic) and replan_node" width="480">
+</p>
+
 ### Plan level (`plan_graph.py`)
 
 | Node | Responsibility |
@@ -66,6 +72,8 @@ cypher-agent/
 ├── data/
 │   ├── tool_definitions.json
 │   └── schema.md
+├── docs/
+│   └── agent_graph.png   # graph diagram used in this README
 ├── notebooks/
 │   └── explore.ipynb
 ├── .env.example
